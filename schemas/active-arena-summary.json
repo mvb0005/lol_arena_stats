@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ActiveArenaSummary",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "in_game": {
+      "type": "boolean"
+    },
+    "queue_id": {
+      "type": "integer"
+    },
+    "game_start_time": {
+      "type": "integer",
+      "format": "int64"
+    }
+  },
+  "required": ["in_game", "queue_id", "game_start_time"]
+}

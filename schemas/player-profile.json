@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PlayerProfile",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "puuid": {
+      "type": "string"
+    },
+    "game_name": {
+      "type": "string"
+    },
+    "tagline": {
+      "type": "string"
+    },
+    "summoner_id": {
+      "type": "string"
+    },
+    "summoner_level": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "profile_icon_id": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "arena_rank": {
+      "$ref": "./arena-rank-summary.json"
+    },
+    "active_arena": {
+      "$ref": "./active-arena-summary.json"
+    }
+  },
+  "required": [
+    "puuid",
+    "game_name",
+    "tagline",
+    "summoner_id",
+    "summoner_level",
+    "profile_icon_id"
+  ]
+}

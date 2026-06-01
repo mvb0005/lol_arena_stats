@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PlayerSearchResult",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "puuid": {
+      "type": "string"
+    },
+    "game_name": {
+      "type": "string"
+    },
+    "tagline": {
+      "type": "string"
+    }
+  },
+  "required": ["puuid", "game_name", "tagline"]
+}

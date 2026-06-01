@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RecentArenaMatchSummary",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "match_id": {
+      "type": "string"
+    },
+    "queue_id": {
+      "type": "integer"
+    },
+    "game_creation": {
+      "type": "integer",
+      "format": "int64"
+    },
+    "game_end_timestamp": {
+      "type": "integer",
+      "format": "int64"
+    },
+    "participants": {
+      "type": "array",
+      "items": {
+        "$ref": "./recent-arena-participant-summary.json"
+      }
+    }
+  },
+  "required": [
+    "match_id",
+    "queue_id",
+    "game_creation",
+    "game_end_timestamp",
+    "participants"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PlayerProfileResponse",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "player": {
+      "$ref": "./player-profile.json"
+    },
+    "recent_matches": {
+      "type": "array",
+      "items": {
+        "$ref": "./recent-arena-match-summary.json"
+      }
+    }
+  },
+  "required": ["player", "recent_matches"]
+}

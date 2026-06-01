@@ -33,6 +33,11 @@ Run the backend locally with:
 cargo run -p backend
 ```
 
+## New player endpoints
+
+- `GET /lol/players/search?game_name={game_name}&tagline={tagline}`
+- `GET /lol/players/{puuid}`
+
 ## AI-friendly context
 
 - Repo-specific Copilot guidance lives in `/tmp/workspace/mvb0005/lol_arena_stats/.github/copilot-instructions.md`.
