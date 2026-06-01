@@ -8,4 +8,5 @@ export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
 export { ArenaService } from './services/ArenaService';
+export { PlayersService } from './services/PlayersService';
 export { SystemService } from './services/SystemService';

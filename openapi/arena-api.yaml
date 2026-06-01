@@ -49,3 +49,64 @@ paths:
             application/json:
               schema:
                 $ref: ../schemas/arena-player-stats.json
+  /lol/players/search:
+    get:
+      operationId: searchPlayers
+      tags:
+        - players
+      summary: Search players by Riot ID game name and tagline
+      parameters:
+        - name: game_name
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: tagline
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/player-search-response.json
+        '502':
+          description: Upstream Riot/API failure
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/error-response.json
+  /lol/players/{puuid}:
+    get:
+      operationId: getPlayerProfile
+      tags:
+        - players
+      summary: Get player profile and recent Arena matches
+      parameters:
+        - name: puuid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Player profile with recent matches
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/player-profile-response.json
+        '404':
+          description: Player not found
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/error-response.json
+        '502':
+          description: Upstream Riot/API failure
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/error-response.json

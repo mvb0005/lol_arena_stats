@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RecentArenaParticipantSummary",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "puuid": {
+      "type": "string"
+    },
+    "placement": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "champion_id": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "kills": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "deaths": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "assists": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "required": ["puuid", "placement", "champion_id", "kills", "deaths", "assists"]
+}

@@ -20,173 +20,452 @@ use crate::{
     models::check_xss_string, models::check_xss_vec_string,
 };
 
+
 /// Setup API Server.
 pub fn new<I, A, E>(api_impl: I) -> Router
 where
     I: AsRef<A> + Clone + Send + Sync + 'static,
-    A: apis::arena::Arena<E> + apis::system::System<E> + Send + Sync + 'static,
+    A: apis::arena::Arena<E> + apis::players::Players<E> + apis::system::System<E> + Send + Sync + 'static,
     E: std::fmt::Debug + Send + Sync + 'static,
+    
 {
     // build our application with a route
     Router::new()
-        .route("/api/v1/arena/stats", get(get_arena_stats::<I, A, E>))
-        .route("/health", get(get_health::<I, A, E>))
+        .route("/api/v1/arena/stats",
+            get(get_arena_stats::<I, A, E>)
+        )
+        .route("/health",
+            get(get_health::<I, A, E>)
+        )
+        .route("/lol/players/search",
+            get(search_players::<I, A, E>)
+        )
+        .route("/lol/players/{puuid}",
+            get(get_player_profile::<I, A, E>)
+        )
         .with_state(api_impl)
 }
 
+
 #[tracing::instrument(skip_all)]
 fn get_arena_stats_validation(
-    query_params: models::GetArenaStatsQueryParams,
-) -> std::result::Result<(models::GetArenaStatsQueryParams,), ValidationErrors> {
-    query_params.validate()?;
+  query_params: models::GetArenaStatsQueryParams,
+) -> std::result::Result<(
+  models::GetArenaStatsQueryParams,
+), ValidationErrors>
+{
+  query_params.validate()?;
 
-    Ok((query_params,))
+Ok((
+  query_params,
+))
 }
 /// GetArenaStats - GET /api/v1/arena/stats
 #[tracing::instrument(skip_all)]
 async fn get_arena_stats<I, A, E>(
-    method: Method,
-    TypedHeader(host): TypedHeader<Host>,
-    cookies: CookieJar,
-    QueryExtra(query_params): QueryExtra<models::GetArenaStatsQueryParams>,
-    State(api_impl): State<I>,
+  method: Method,
+  TypedHeader(host): TypedHeader<Host>,
+  cookies: CookieJar,
+  QueryExtra(query_params): QueryExtra<models::GetArenaStatsQueryParams>,
+ State(api_impl): State<I>,
 ) -> Result<Response, StatusCode>
 where
     I: AsRef<A> + Send + Sync,
     A: apis::arena::Arena<E> + Send + Sync,
     E: std::fmt::Debug + Send + Sync + 'static,
-{
-    #[allow(clippy::redundant_closure)]
-    let validation = tokio::task::spawn_blocking(move || get_arena_stats_validation(query_params))
-        .await
-        .unwrap();
+        {
 
-    let Ok((query_params,)) = validation else {
-        return Response::builder()
+
+
+
+      #[allow(clippy::redundant_closure)]
+      let validation = tokio::task::spawn_blocking(move ||
+    get_arena_stats_validation(
+        query_params,
+    )
+  ).await.unwrap();
+
+  let Ok((
+    query_params,
+  )) = validation else {
+    return Response::builder()
             .status(StatusCode::BAD_REQUEST)
             .body(Body::from(validation.unwrap_err().to_string()))
             .map_err(|_| StatusCode::BAD_REQUEST);
-    };
+  };
 
-    let result = api_impl
-        .as_ref()
-        .get_arena_stats(&method, &host, &cookies, &query_params)
-        .await;
 
-    let mut response = Response::builder();
 
-    let resp = match result {
-        Ok(rsp) => match rsp {
-            apis::arena::GetArenaStatsResponse::Status200_AggregatedArenaStatsSnapshot(body) => {
-                let mut response = response.status(200);
-                {
-                    let mut response_headers = response.headers_mut().unwrap();
-                    response_headers
-                        .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
-                }
+let result = api_impl.as_ref().get_arena_stats(
+      
+      &method,
+      &host,
+      &cookies,
+        &query_params,
+  ).await;
 
-                let body_content = tokio::task::spawn_blocking(move || {
-                    serde_json::to_vec(&body).map_err(|e| {
-                        error!(error = ?e);
-                        StatusCode::INTERNAL_SERVER_ERROR
-                    })
-                })
-                .await
-                .unwrap()?;
-                response.body(Body::from(body_content))
-            }
-        },
-        Err(why) => {
-            // Application code returned an error. This should not happen, as the implementation should
-            // return a valid response.
-            return api_impl
-                .as_ref()
-                .handle_error(&method, &host, &cookies, why)
-                .await;
-        }
-    };
+  let mut response = Response::builder();
 
-    resp.map_err(|e| {
-        error!(error = ?e);
-        StatusCode::INTERNAL_SERVER_ERROR
-    })
+  let resp = match result {
+                                            Ok(rsp) => match rsp {
+                                                apis::arena::GetArenaStatsResponse::Status200_AggregatedArenaStatsSnapshot
+                                                    (body)
+                                                => {
+                                                  let mut response = response.status(200);
+                                                  {
+                                                    let mut response_headers = response.headers_mut().unwrap();
+                                                    response_headers.insert(
+                                                        CONTENT_TYPE,
+                                                        HeaderValue::from_static("application/json"));
+                                                  }
+
+                                                  let body_content =  tokio::task::spawn_blocking(move ||
+                                                      serde_json::to_vec(&body).map_err(|e| {
+                                                        error!(error = ?e);
+                                                        StatusCode::INTERNAL_SERVER_ERROR
+                                                      })).await.unwrap()?;
+                                                  response.body(Body::from(body_content))
+                                                },
+                                            },
+                                            Err(why) => {
+                                                    // Application code returned an error. This should not happen, as the implementation should
+                                                    // return a valid response.
+                                                    return api_impl.as_ref().handle_error(&method, &host, &cookies, why).await;
+                                            },
+                                        };
+
+
+                                        resp.map_err(|e| { error!(error = ?e); StatusCode::INTERNAL_SERVER_ERROR })
 }
 
+
 #[tracing::instrument(skip_all)]
-fn get_health_validation() -> std::result::Result<(), ValidationErrors> {
-    Ok(())
+fn get_player_profile_validation(
+  path_params: models::GetPlayerProfilePathParams,
+) -> std::result::Result<(
+  models::GetPlayerProfilePathParams,
+), ValidationErrors>
+{
+  path_params.validate()?;
+
+Ok((
+  path_params,
+))
+}
+/// GetPlayerProfile - GET /lol/players/{puuid}
+#[tracing::instrument(skip_all)]
+async fn get_player_profile<I, A, E>(
+  method: Method,
+  TypedHeader(host): TypedHeader<Host>,
+  cookies: CookieJar,
+  Path(path_params): Path<models::GetPlayerProfilePathParams>,
+ State(api_impl): State<I>,
+) -> Result<Response, StatusCode>
+where
+    I: AsRef<A> + Send + Sync,
+    A: apis::players::Players<E> + Send + Sync,
+    E: std::fmt::Debug + Send + Sync + 'static,
+        {
+
+
+
+
+      #[allow(clippy::redundant_closure)]
+      let validation = tokio::task::spawn_blocking(move ||
+    get_player_profile_validation(
+        path_params,
+    )
+  ).await.unwrap();
+
+  let Ok((
+    path_params,
+  )) = validation else {
+    return Response::builder()
+            .status(StatusCode::BAD_REQUEST)
+            .body(Body::from(validation.unwrap_err().to_string()))
+            .map_err(|_| StatusCode::BAD_REQUEST);
+  };
+
+
+
+let result = api_impl.as_ref().get_player_profile(
+      
+      &method,
+      &host,
+      &cookies,
+        &path_params,
+  ).await;
+
+  let mut response = Response::builder();
+
+  let resp = match result {
+                                            Ok(rsp) => match rsp {
+                                                apis::players::GetPlayerProfileResponse::Status200_PlayerProfileWithRecentMatches
+                                                    (body)
+                                                => {
+                                                  let mut response = response.status(200);
+                                                  {
+                                                    let mut response_headers = response.headers_mut().unwrap();
+                                                    response_headers.insert(
+                                                        CONTENT_TYPE,
+                                                        HeaderValue::from_static("application/json"));
+                                                  }
+
+                                                  let body_content =  tokio::task::spawn_blocking(move ||
+                                                      serde_json::to_vec(&body).map_err(|e| {
+                                                        error!(error = ?e);
+                                                        StatusCode::INTERNAL_SERVER_ERROR
+                                                      })).await.unwrap()?;
+                                                  response.body(Body::from(body_content))
+                                                },
+                                                apis::players::GetPlayerProfileResponse::Status404_PlayerNotFound
+                                                    (body)
+                                                => {
+                                                  let mut response = response.status(404);
+                                                  {
+                                                    let mut response_headers = response.headers_mut().unwrap();
+                                                    response_headers.insert(
+                                                        CONTENT_TYPE,
+                                                        HeaderValue::from_static("application/json"));
+                                                  }
+
+                                                  let body_content =  tokio::task::spawn_blocking(move ||
+                                                      serde_json::to_vec(&body).map_err(|e| {
+                                                        error!(error = ?e);
+                                                        StatusCode::INTERNAL_SERVER_ERROR
+                                                      })).await.unwrap()?;
+                                                  response.body(Body::from(body_content))
+                                                },
+                                                apis::players::GetPlayerProfileResponse::Status502_UpstreamRiot
+                                                    (body)
+                                                => {
+                                                  let mut response = response.status(502);
+                                                  {
+                                                    let mut response_headers = response.headers_mut().unwrap();
+                                                    response_headers.insert(
+                                                        CONTENT_TYPE,
+                                                        HeaderValue::from_static("application/json"));
+                                                  }
+
+                                                  let body_content =  tokio::task::spawn_blocking(move ||
+                                                      serde_json::to_vec(&body).map_err(|e| {
+                                                        error!(error = ?e);
+                                                        StatusCode::INTERNAL_SERVER_ERROR
+                                                      })).await.unwrap()?;
+                                                  response.body(Body::from(body_content))
+                                                },
+                                            },
+                                            Err(why) => {
+                                                    // Application code returned an error. This should not happen, as the implementation should
+                                                    // return a valid response.
+                                                    return api_impl.as_ref().handle_error(&method, &host, &cookies, why).await;
+                                            },
+                                        };
+
+
+                                        resp.map_err(|e| { error!(error = ?e); StatusCode::INTERNAL_SERVER_ERROR })
+}
+
+
+#[tracing::instrument(skip_all)]
+fn search_players_validation(
+  query_params: models::SearchPlayersQueryParams,
+) -> std::result::Result<(
+  models::SearchPlayersQueryParams,
+), ValidationErrors>
+{
+  query_params.validate()?;
+
+Ok((
+  query_params,
+))
+}
+/// SearchPlayers - GET /lol/players/search
+#[tracing::instrument(skip_all)]
+async fn search_players<I, A, E>(
+  method: Method,
+  TypedHeader(host): TypedHeader<Host>,
+  cookies: CookieJar,
+  QueryExtra(query_params): QueryExtra<models::SearchPlayersQueryParams>,
+ State(api_impl): State<I>,
+) -> Result<Response, StatusCode>
+where
+    I: AsRef<A> + Send + Sync,
+    A: apis::players::Players<E> + Send + Sync,
+    E: std::fmt::Debug + Send + Sync + 'static,
+        {
+
+
+
+
+      #[allow(clippy::redundant_closure)]
+      let validation = tokio::task::spawn_blocking(move ||
+    search_players_validation(
+        query_params,
+    )
+  ).await.unwrap();
+
+  let Ok((
+    query_params,
+  )) = validation else {
+    return Response::builder()
+            .status(StatusCode::BAD_REQUEST)
+            .body(Body::from(validation.unwrap_err().to_string()))
+            .map_err(|_| StatusCode::BAD_REQUEST);
+  };
+
+
+
+let result = api_impl.as_ref().search_players(
+      
+      &method,
+      &host,
+      &cookies,
+        &query_params,
+  ).await;
+
+  let mut response = Response::builder();
+
+  let resp = match result {
+                                            Ok(rsp) => match rsp {
+                                                apis::players::SearchPlayersResponse::Status200_SearchResults
+                                                    (body)
+                                                => {
+                                                  let mut response = response.status(200);
+                                                  {
+                                                    let mut response_headers = response.headers_mut().unwrap();
+                                                    response_headers.insert(
+                                                        CONTENT_TYPE,
+                                                        HeaderValue::from_static("application/json"));
+                                                  }
+
+                                                  let body_content =  tokio::task::spawn_blocking(move ||
+                                                      serde_json::to_vec(&body).map_err(|e| {
+                                                        error!(error = ?e);
+                                                        StatusCode::INTERNAL_SERVER_ERROR
+                                                      })).await.unwrap()?;
+                                                  response.body(Body::from(body_content))
+                                                },
+                                                apis::players::SearchPlayersResponse::Status502_UpstreamRiot
+                                                    (body)
+                                                => {
+                                                  let mut response = response.status(502);
+                                                  {
+                                                    let mut response_headers = response.headers_mut().unwrap();
+                                                    response_headers.insert(
+                                                        CONTENT_TYPE,
+                                                        HeaderValue::from_static("application/json"));
+                                                  }
+
+                                                  let body_content =  tokio::task::spawn_blocking(move ||
+                                                      serde_json::to_vec(&body).map_err(|e| {
+                                                        error!(error = ?e);
+                                                        StatusCode::INTERNAL_SERVER_ERROR
+                                                      })).await.unwrap()?;
+                                                  response.body(Body::from(body_content))
+                                                },
+                                            },
+                                            Err(why) => {
+                                                    // Application code returned an error. This should not happen, as the implementation should
+                                                    // return a valid response.
+                                                    return api_impl.as_ref().handle_error(&method, &host, &cookies, why).await;
+                                            },
+                                        };
+
+
+                                        resp.map_err(|e| { error!(error = ?e); StatusCode::INTERNAL_SERVER_ERROR })
+}
+
+
+#[tracing::instrument(skip_all)]
+fn get_health_validation(
+) -> std::result::Result<(
+), ValidationErrors>
+{
+
+Ok((
+))
 }
 /// GetHealth - GET /health
 #[tracing::instrument(skip_all)]
 async fn get_health<I, A, E>(
-    method: Method,
-    TypedHeader(host): TypedHeader<Host>,
-    cookies: CookieJar,
-    State(api_impl): State<I>,
+  method: Method,
+  TypedHeader(host): TypedHeader<Host>,
+  cookies: CookieJar,
+ State(api_impl): State<I>,
 ) -> Result<Response, StatusCode>
 where
     I: AsRef<A> + Send + Sync,
     A: apis::system::System<E> + Send + Sync,
     E: std::fmt::Debug + Send + Sync + 'static,
-{
-    #[allow(clippy::redundant_closure)]
-    let validation = tokio::task::spawn_blocking(move || get_health_validation())
-        .await
-        .unwrap();
+        {
 
-    let Ok(()) = validation else {
-        return Response::builder()
+
+
+
+      #[allow(clippy::redundant_closure)]
+      let validation = tokio::task::spawn_blocking(move ||
+    get_health_validation(
+    )
+  ).await.unwrap();
+
+  let Ok((
+  )) = validation else {
+    return Response::builder()
             .status(StatusCode::BAD_REQUEST)
             .body(Body::from(validation.unwrap_err().to_string()))
             .map_err(|_| StatusCode::BAD_REQUEST);
-    };
+  };
 
-    let result = api_impl.as_ref().get_health(&method, &host, &cookies).await;
 
-    let mut response = Response::builder();
 
-    let resp = match result {
-        Ok(rsp) => match rsp {
-            apis::system::GetHealthResponse::Status200_ServiceHealth(body) => {
-                let mut response = response.status(200);
-                {
-                    let mut response_headers = response.headers_mut().unwrap();
-                    response_headers
-                        .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
-                }
+let result = api_impl.as_ref().get_health(
+      
+      &method,
+      &host,
+      &cookies,
+  ).await;
 
-                let body_content = tokio::task::spawn_blocking(move || {
-                    serde_json::to_vec(&body).map_err(|e| {
-                        error!(error = ?e);
-                        StatusCode::INTERNAL_SERVER_ERROR
-                    })
-                })
-                .await
-                .unwrap()?;
-                response.body(Body::from(body_content))
-            }
-        },
-        Err(why) => {
-            // Application code returned an error. This should not happen, as the implementation should
-            // return a valid response.
-            return api_impl
-                .as_ref()
-                .handle_error(&method, &host, &cookies, why)
-                .await;
-        }
-    };
+  let mut response = Response::builder();
 
-    resp.map_err(|e| {
-        error!(error = ?e);
-        StatusCode::INTERNAL_SERVER_ERROR
-    })
+  let resp = match result {
+                                            Ok(rsp) => match rsp {
+                                                apis::system::GetHealthResponse::Status200_ServiceHealth
+                                                    (body)
+                                                => {
+                                                  let mut response = response.status(200);
+                                                  {
+                                                    let mut response_headers = response.headers_mut().unwrap();
+                                                    response_headers.insert(
+                                                        CONTENT_TYPE,
+                                                        HeaderValue::from_static("application/json"));
+                                                  }
+
+                                                  let body_content =  tokio::task::spawn_blocking(move ||
+                                                      serde_json::to_vec(&body).map_err(|e| {
+                                                        error!(error = ?e);
+                                                        StatusCode::INTERNAL_SERVER_ERROR
+                                                      })).await.unwrap()?;
+                                                  response.body(Body::from(body_content))
+                                                },
+                                            },
+                                            Err(why) => {
+                                                    // Application code returned an error. This should not happen, as the implementation should
+                                                    // return a valid response.
+                                                    return api_impl.as_ref().handle_error(&method, &host, &cookies, why).await;
+                                            },
+                                        };
+
+
+                                        resp.map_err(|e| { error!(error = ?e); StatusCode::INTERNAL_SERVER_ERROR })
 }
+
 
 #[allow(dead_code)]
 #[inline]
 fn response_with_status_code_only(code: StatusCode) -> Result<Response, StatusCode> {
-    Response::builder()
-        .status(code)
-        .body(Body::empty())
-        .map_err(|_| code)
+   Response::builder()
+          .status(code)
+          .body(Body::empty())
+          .map_err(|_| code)
 }
