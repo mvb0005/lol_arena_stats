@@ -49,3 +49,58 @@ paths:
             application/json:
               schema:
                 $ref: ../schemas/arena-player-stats.json
+  /api/v1/arena/leaderboard:
+    get:
+      operationId: getArenaLeaderboard
+      tags:
+        - arena
+      summary: Fetch ranked arena player summaries
+      parameters:
+        - name: region
+          in: query
+          required: false
+          schema:
+            type: string
+            default: americas
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - winRate
+              - topFourRate
+              - averagePlacement
+              - matchesPlayed
+            default: winRate
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Ranked and paginated arena leaderboard
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/arena-leaderboard-response.json
