@@ -17,7 +17,7 @@ jobs:
         with:
           components: rustfmt, clippy
 
-      - name: Cache Cargo registry
+      - name: Cache Cargo registry and build artifacts
         uses: actions/cache@v4
         with:
           path: |
@@ -31,7 +31,7 @@ jobs:
         run: cargo fmt --all --check
 
       - name: cargo clippy
-        run: cargo clippy --workspace --all-targets -- -D warnings
+        run: cargo clippy --locked --workspace --all-targets -- -D warnings
 
   build-and-test:
     name: Build & Test
@@ -42,7 +42,7 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Cache Cargo registry
+      - name: Cache Cargo registry and build artifacts
         uses: actions/cache@v4
         with:
           path: |
@@ -53,7 +53,7 @@ jobs:
           restore-keys: ${{ runner.os }}-cargo-
 
       - name: cargo build
-        run: cargo build --workspace
+        run: cargo build --locked --workspace
 
       - name: cargo test
-        run: cargo test --workspace
+        run: cargo test --locked --workspace

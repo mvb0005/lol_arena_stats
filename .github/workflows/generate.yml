@@ -6,6 +6,8 @@ on:
     paths:
       - 'openapi/**'
       - 'schemas/**'
+      - 'openapitools.json'
+      - 'package-lock.json'
   workflow_dispatch:
 
 jobs:
