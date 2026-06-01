@@ -1,0 +1,51 @@
+openapi: 3.1.0
+info:
+  title: LoL Arena Stats API
+  version: 0.1.0
+  description: Contract-first API for a Rust backend that serves arena stats.
+servers:
+  - url: http://localhost:3001
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      tags:
+        - system
+      summary: Backend health check
+      responses:
+        '200':
+          description: Service health
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/health-status.json
+  /api/v1/arena/stats:
+    get:
+      operationId: getArenaStats
+      tags:
+        - arena
+      summary: Fetch aggregated arena stats for a player
+      parameters:
+        - name: playerName
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: tagLine
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: region
+          in: query
+          required: false
+          schema:
+            type: string
+            default: americas
+      responses:
+        '200':
+          description: Aggregated arena stats snapshot
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/arena-player-stats.json

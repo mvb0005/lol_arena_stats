@@ -1,0 +1,19 @@
+{
+  "name": "lol_arena_stats",
+  "version": "0.1.0",
+  "description": "Contract-first Rust backend scaffold for lol arena stats.",
+  "private": true,
+  "scripts": {
+    "build": "cargo build --workspace",
+    "test": "cargo test --workspace",
+    "lint": "cargo fmt --all --check && cargo clippy --workspace --all-targets -- -D warnings",
+    "generate:rust": "openapi-generator-cli generate -i ./openapi/arena-api.yaml -g rust-axum -o ./generated/rust-server",
+    "generate:ts": "openapi --input ./openapi/arena-api.yaml --output ./generated/ts-client --client fetch",
+    "generate": "npm run generate:rust && npm run generate:ts"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@openapitools/openapi-generator-cli": "^2.20.0",
+    "openapi-typescript-codegen": "^0.29.0"
+  }
+}

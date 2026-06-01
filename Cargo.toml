@@ -1,0 +1,3 @@
+[workspace]
+members = ["backend", "generated/rust-server"]
+resolver = "2"
