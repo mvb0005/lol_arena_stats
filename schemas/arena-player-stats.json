@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ArenaPlayerStats",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "averagePlacement": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 8
+    },
+    "lastUpdated": {
+      "type": "string"
+    },
+    "matchesPlayed": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "playerName": {
+      "type": "string"
+    },
+    "region": {
+      "type": "string"
+    },
+    "tagLine": {
+      "type": "string"
+    },
+    "topFourRate": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "winRate": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    }
+  },
+  "required": [
+    "averagePlacement",
+    "lastUpdated",
+    "matchesPlayed",
+    "playerName",
+    "region",
+    "tagLine",
+    "topFourRate",
+    "winRate"
+  ]
+}
