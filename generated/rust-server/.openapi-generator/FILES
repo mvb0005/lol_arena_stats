@@ -1,9 +1,9 @@
 .gitignore
-.openapi-generator-ignore
 Cargo.toml
 README.md
 src/apis/arena.rs
 src/apis/mod.rs
+src/apis/players.rs
 src/apis/system.rs
 src/header.rs
 src/lib.rs

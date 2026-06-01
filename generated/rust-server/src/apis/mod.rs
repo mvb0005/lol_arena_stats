@@ -1,4 +1,5 @@
 pub mod arena;
+pub mod players;
 pub mod system;
 
 // Error handler for unhandled errors.

@@ -33,6 +33,13 @@ Run the backend locally with:
 cargo run -p backend
 ```
 
+## Current API surface
+
+- `GET /health`
+- `GET /api/v1/arena/stats`
+- `GET /api/v1/players/search`
+- `GET /api/v1/players/{puuid}/profile`
+
 ## AI-friendly context
 
 - Repo-specific Copilot guidance lives in `/tmp/workspace/mvb0005/lol_arena_stats/.github/copilot-instructions.md`.

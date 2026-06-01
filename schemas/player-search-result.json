@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PlayerSearchResult",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "playerName": {
+      "type": "string"
+    },
+    "tagLine": {
+      "type": "string"
+    },
+    "region": {
+      "type": "string"
+    },
+    "puuid": {
+      "type": "string"
+    },
+    "lastUpdated": {
+      "type": "string"
+    }
+  },
+  "required": ["playerName", "tagLine", "region", "puuid", "lastUpdated"]
+}

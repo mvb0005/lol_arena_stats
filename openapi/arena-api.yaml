@@ -6,6 +6,79 @@ info:
 servers:
   - url: http://localhost:3001
 paths:
+  /api/v1/players/search:
+    get:
+      operationId: searchPlayer
+      tags:
+        - players
+      summary: Resolve a player identity from Riot ID or summoner lookup
+      parameters:
+        - name: playerName
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: tagLine
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: region
+          in: query
+          required: false
+          schema:
+            type: string
+            default: americas
+      responses:
+        '200':
+          description: Resolved player identity
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/player-search-result.json
+        '400':
+          description: Invalid player search query
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/api-error.json
+        '404':
+          description: Player not found
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/api-error.json
+  /api/v1/players/{puuid}/profile:
+    get:
+      operationId: getPlayerProfile
+      tags:
+        - players
+      summary: Fetch Arena-focused profile summary for a player
+      parameters:
+        - name: puuid
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: region
+          in: query
+          required: false
+          schema:
+            type: string
+            default: americas
+      responses:
+        '200':
+          description: Arena profile summary
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/player-profile-summary.json
+        '404':
+          description: Player profile not found
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/api-error.json
   /health:
     get:
       operationId: getHealth
