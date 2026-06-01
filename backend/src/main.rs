@@ -166,10 +166,12 @@ impl Players<()> for Api {
                     MOCK_LAST_UPDATED.to_owned(),
                 ),
             ),
-            None => GetPlayerProfileResponse::Status404_PlayerProfileNotFound(models::ApiError::new(
-                "PLAYER_NOT_FOUND".to_owned(),
-                "No profile found for the requested player.".to_owned(),
-            )),
+            None => {
+                GetPlayerProfileResponse::Status404_PlayerProfileNotFound(models::ApiError::new(
+                    "PLAYER_NOT_FOUND".to_owned(),
+                    "No profile found for the requested player.".to_owned(),
+                ))
+            }
         })
     }
 
