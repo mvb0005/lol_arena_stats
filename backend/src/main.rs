@@ -106,8 +106,8 @@ impl Arena<()> for Api {
             };
 
             metric_order
-                .then_with(|| a.player_name.cmp(&b.player_name))
-                .then_with(|| a.tag_line.cmp(&b.tag_line))
+                .then_with(|| a.player_name.cmp(b.player_name))
+                .then_with(|| a.tag_line.cmp(b.tag_line))
         });
 
         let ranked_entries: Vec<models::ArenaLeaderboardEntry> = leaderboard
@@ -129,7 +129,11 @@ impl Arena<()> for Api {
             .collect();
 
         let total_items = ranked_entries.len() as u32;
-        let total_pages = if total_items == 0 { 0 } else { total_items.div_ceil(page_size) };
+        let total_pages = if total_items == 0 {
+            0
+        } else {
+            total_items.div_ceil(page_size)
+        };
         let start = ((page.saturating_sub(1)) * page_size) as usize;
         let paged_entries = if start >= ranked_entries.len() {
             Vec::new()
