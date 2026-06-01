@@ -32,3 +32,9 @@ Run the backend locally with:
 ```bash
 cargo run -p backend
 ```
+
+## AI-friendly context
+
+- Repo-specific Copilot guidance lives in `/tmp/workspace/mvb0005/lol_arena_stats/.github/copilot-instructions.md`.
+- Follow the contract-first flow: update `openapi/` + `schemas/` first, then run `npm run generate`.
+- Treat `generated/` artifacts as derived outputs from the contract and schemas.
