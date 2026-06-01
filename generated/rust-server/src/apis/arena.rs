@@ -13,8 +13,12 @@ use crate::{models, types::*};
 #[allow(clippy::large_enum_variant)]
 pub enum GetArenaStatsResponse {
     /// Aggregated arena stats snapshot
-    Status200_AggregatedArenaStatsSnapshot(models::ArenaPlayerStats),
+    Status200_AggregatedArenaStatsSnapshot
+    (models::ArenaPlayerStats)
 }
+
+
+
 
 /// Arena
 #[async_trait]
@@ -24,11 +28,11 @@ pub trait Arena<E: std::fmt::Debug + Send + Sync + 'static = ()>: super::ErrorHa
     ///
     /// GetArenaStats - GET /api/v1/arena/stats
     async fn get_arena_stats(
-        &self,
-
-        method: &Method,
-        host: &Host,
-        cookies: &CookieJar,
-        query_params: &models::GetArenaStatsQueryParams,
+    &self,
+    
+    method: &Method,
+    host: &Host,
+    cookies: &CookieJar,
+      query_params: &models::GetArenaStatsQueryParams,
     ) -> Result<GetArenaStatsResponse, E>;
 }
