@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PlayerProfileSummary",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "playerName": {
+      "type": "string"
+    },
+    "tagLine": {
+      "type": "string"
+    },
+    "region": {
+      "type": "string"
+    },
+    "puuid": {
+      "type": "string"
+    },
+    "recentPlacements": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 8
+      },
+      "minItems": 1
+    },
+    "totalGames": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "winRate": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "lastUpdated": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "playerName",
+    "tagLine",
+    "region",
+    "puuid",
+    "recentPlacements",
+    "totalGames",
+    "winRate",
+    "lastUpdated"
+  ]
+}
