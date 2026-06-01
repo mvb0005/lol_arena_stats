@@ -1,0 +1,48 @@
+name: Generate Assets
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'openapi/**'
+      - 'schemas/**'
+      - 'openapitools.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+
+jobs:
+  generate:
+    name: Regenerate OpenAPI assets
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Generate Rust server stubs and TypeScript client
+        run: npm run generate
+
+      - name: Open PR with regenerated assets
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: 'chore: regenerate OpenAPI assets'
+          title: 'chore: regenerate OpenAPI assets'
+          body: |
+            Automated regeneration of `generated/rust-server` and `generated/ts-client`
+            triggered by changes to `openapi/` or `schemas/`.
+
+            Review the diff to confirm the generated contract matches expectations before merging.
+          branch: chore/regenerate-openapi-assets
+          delete-branch: true
+          labels: generated
