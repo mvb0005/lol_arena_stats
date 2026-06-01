@@ -89,8 +89,8 @@ impl Api {
                 match_ids
                     .iter()
                     .filter_map(|id| state.recent_matches.get(id))
-                    .cloned()
                     .take(MAX_RECENT_MATCHES)
+                    .cloned()
                     .collect()
             })
             .unwrap_or_default();
@@ -138,7 +138,7 @@ impl AppState {
                 let participants = vec![
                     models::RecentArenaParticipantSummary::new(
                         player.puuid.clone(),
-                        ((idx % 8) + 1) as u32,
+                        (idx % 8) + 1,
                         266 + idx,
                         8 + idx,
                         2 + (idx % 4),
@@ -277,7 +277,7 @@ impl Players<()> for Api {
     ) -> Result<GetPlayerProfileResponse, ()> {
         let response = match self.player_profile_response(&path_params.puuid) {
             Some(profile) => {
-                GetPlayerProfileResponse::Status200_PlayerProfileWithRecentArenaMatches(profile)
+                GetPlayerProfileResponse::Status200_PlayerProfileWithRecentMatches(profile)
             }
             None => GetPlayerProfileResponse::Status404_PlayerNotFound(models::ErrorResponse::new(
                 "player not found".to_owned(),
@@ -374,7 +374,7 @@ mod tests {
             .expect("get_player_profile should succeed");
 
         match response {
-            GetPlayerProfileResponse::Status200_PlayerProfileWithRecentArenaMatches(body) => {
+            GetPlayerProfileResponse::Status200_PlayerProfileWithRecentMatches(body) => {
                 assert_eq!(body.player.game_name, "SomeName");
                 assert!(body.player.arena_rank.is_some());
                 assert!(body.player.active_arena.is_some());

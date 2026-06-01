@@ -13,12 +13,8 @@ use crate::{models, types::*};
 #[allow(clippy::large_enum_variant)]
 pub enum GetHealthResponse {
     /// Service health
-    Status200_ServiceHealth
-    (models::HealthStatus)
+    Status200_ServiceHealth(models::HealthStatus),
 }
-
-
-
 
 /// System
 #[async_trait]
@@ -28,10 +24,10 @@ pub trait System<E: std::fmt::Debug + Send + Sync + 'static = ()>: super::ErrorH
     ///
     /// GetHealth - GET /health
     async fn get_health(
-    &self,
-    
-    method: &Method,
-    host: &Host,
-    cookies: &CookieJar,
+        &self,
+
+        method: &Method,
+        host: &Host,
+        cookies: &CookieJar,
     ) -> Result<GetHealthResponse, E>;
 }

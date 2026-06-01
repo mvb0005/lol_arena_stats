@@ -13,16 +13,11 @@ use crate::{models, types::*};
 #[allow(clippy::large_enum_variant)]
 pub enum GetPlayerProfileResponse {
     /// Player profile with recent matches
-    Status200_PlayerProfileWithRecentMatches
-    (models::PlayerProfileResponse)
-    ,
+    Status200_PlayerProfileWithRecentMatches(models::PlayerProfileResponse),
     /// Player not found
-    Status404_PlayerNotFound
-    (models::ErrorResponse)
-    ,
+    Status404_PlayerNotFound(models::ErrorResponse),
     /// Upstream Riot/API failure
-    Status502_UpstreamRiot
-    (models::ErrorResponse1)
+    Status502_UpstreamRiot(models::ErrorResponse1),
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -30,16 +25,10 @@ pub enum GetPlayerProfileResponse {
 #[allow(clippy::large_enum_variant)]
 pub enum SearchPlayersResponse {
     /// Search results
-    Status200_SearchResults
-    (models::PlayerSearchResponse)
-    ,
+    Status200_SearchResults(models::PlayerSearchResponse),
     /// Upstream Riot/API failure
-    Status502_UpstreamRiot
-    (models::ErrorResponse)
+    Status502_UpstreamRiot(models::ErrorResponse),
 }
-
-
-
 
 /// Players
 #[async_trait]
@@ -49,23 +38,23 @@ pub trait Players<E: std::fmt::Debug + Send + Sync + 'static = ()>: super::Error
     ///
     /// GetPlayerProfile - GET /lol/players/{puuid}
     async fn get_player_profile(
-    &self,
-    
-    method: &Method,
-    host: &Host,
-    cookies: &CookieJar,
-      path_params: &models::GetPlayerProfilePathParams,
+        &self,
+
+        method: &Method,
+        host: &Host,
+        cookies: &CookieJar,
+        path_params: &models::GetPlayerProfilePathParams,
     ) -> Result<GetPlayerProfileResponse, E>;
 
     /// Search players by Riot ID game name and tagline.
     ///
     /// SearchPlayers - GET /lol/players/search
     async fn search_players(
-    &self,
-    
-    method: &Method,
-    host: &Host,
-    cookies: &CookieJar,
-      query_params: &models::SearchPlayersQueryParams,
+        &self,
+
+        method: &Method,
+        host: &Host,
+        cookies: &CookieJar,
+        query_params: &models::SearchPlayersQueryParams,
     ) -> Result<SearchPlayersResponse, E>;
 }
